@@ -54,6 +54,16 @@ class AsyncCursor(mongomock.collection.Cursor):
         except StopIteration:
             raise StopAsyncIteration()
 
+class AsyncCommandCursor(mongomock.command_cursor.CommandCursor):
+    def __aiter__(self):
+        return self
+
+    async def __anext__(self):
+        try:
+            return next(self)
+        except StopIteration:
+            raise StopAsyncIteration()
+
 
 @wrapp_methods
 class AsyncCollection(mongomock.Collection):
@@ -84,6 +94,11 @@ class AsyncCollection(mongomock.Collection):
     def find(self, *args, **kwargs) -> AsyncCursor:
         cursor = super().find(*args, **kwargs)
         cursor.__class__ = AsyncCursor
+        return cursor
+
+    def aggregate(self, *args, **kwargs) -> AsyncCommandCursor:
+        cursor = super().aggregate(*args, **kwargs)
+        cursor.__class__ = AsyncCommandCursor
         return cursor
 
 
