@@ -34,6 +34,7 @@ directory.
 
 Unlike pytest-mongodb, you cannot specify a real MongoDB connection with the pymongo client.
 
+**For local testing make sure to install ``pytest-async-mongodb`` using `pip install .`**
 
 Basic usage
 -----------

@@ -4,6 +4,9 @@ import pytest
 
 pytestmark = pytest.mark.asyncio
 
+async def test_players(async_mongodb):
+    manuel = await async_mongodb.players.find_one({'name': 'Manuel'})
+    assert manuel['surname'] == 'Neuer'
 
 async def test_load(async_mongodb):
     collection_names = await async_mongodb.list_collection_names()
@@ -148,6 +151,38 @@ async def test_find_sorted_with_filter(async_mongodb):
     docs = async_mongodb.championships.find(
         filter={"winner": "France"}, sort=[("year", 1)]
     )
+    docs_list = []
+    async for doc in docs:
+        docs_list.append(doc)
+    assert docs_list == [
+        {
+            "_id": ObjectId("55d2db30f4811f83a1f27bea"),
+            "year": 2006,
+            "host": "Germany",
+            "winner": "France",
+        },
+        {
+            "_id": ObjectId("608b0151a20cf0c679939f59"),
+            "year": 2018,
+            "host": "Russia",
+            "winner": "France",
+        },
+    ]
+
+async def test_aggregate_sorted_with_filter(async_mongodb):
+    pipeline = [
+        {
+            "$match": {
+                "winner": "France"
+            }
+        },
+        {
+            "$sort": {
+                "year": 1
+            }
+        }
+    ]
+    docs = async_mongodb.championships.aggregate(pipeline)
     docs_list = []
     async for doc in docs:
         docs_list.append(doc)
